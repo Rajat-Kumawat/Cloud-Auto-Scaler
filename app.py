@@ -7,11 +7,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # Simulate CPU work
+    
     delay = random.uniform(0.1, 0.3)
     time.sleep(delay)
     
-    # Get Container ID
     container_id = os.uname()[1]
     
     return f"""

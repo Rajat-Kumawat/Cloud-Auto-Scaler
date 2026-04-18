@@ -8,9 +8,6 @@ import threading
 from flask import Flask, jsonify, request, render_template
 from datetime import datetime
 
-# ===========================
-# 🔧 CONFIGURATION
-# ===========================
 PROMETHEUS_URL = "http://localhost:9090"
 METRIC_NAME = "nginx_connections_active"
 LOOKBACK_MINUTES = 30
@@ -38,9 +35,7 @@ def log_event(message):
     if len(system_state["logs"]) > 50:
         system_state["logs"].pop()
 
-# ===========================
-# 🌐 DASHBOARD SERVER
-# ===========================
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -55,7 +50,7 @@ def stats():
 def reset_budget():
     system_state["cost"] = 0.0
     system_state["budget_status"] = "OK"
-    log_event("🔄 FINANCIAL RESET: Cost cleared to $0.00")
+    log_event(" FINANCIAL RESET: Cost cleared to $0.00")
     return jsonify({"status": "reset"})
 
 @app.route('/api/set_budget', methods=['POST'])
@@ -65,7 +60,7 @@ def set_budget():
     system_state["budget_limit"] = new_limit
     if system_state["cost"] < new_limit:
         system_state["budget_status"] = "OK"
-    log_event(f"💰 BUDGET UPDATE: New Limit is ${new_limit:.2f}")
+    log_event(f" BUDGET UPDATE: New Limit is ${new_limit:.2f}")
     return jsonify({"status": "updated"})
 
 @app.route('/api/set_sensitivity', methods=['POST'])
@@ -73,15 +68,13 @@ def set_sensitivity():
     data = request.json
     new_cap = int(data.get('capacity', 20))
     system_state["capacity_per_server"] = new_cap
-    log_event(f"🎛 TUNING UPDATE: 1 Server handles {new_cap} users")
+    log_event(f" TUNING UPDATE: 1 Server handles {new_cap} users")
     return jsonify({"status": "updated"})
 
 def run_dashboard():
     app.run(host='0.0.0.0', port=8000, debug=False, use_reloader=False)
 
-# ===========================
-# 🧠 AI & SCALING LOGIC
-# ===========================
+
 def fetch_data():
     end_time = time.time()
     start_time = end_time - (LOOKBACK_MINUTES * 60)
@@ -116,7 +109,7 @@ def scale_docker(n_containers):
     system_state["scale"] = n_containers
 
 def ai_loop():
-    log_event("🧠 AI Autoscaler Active... (Waiting for data)")
+    log_event("AI Autoscaler Active... (Waiting for data)")
     model = RandomForestRegressor(n_estimators=100)
     
     while True:
@@ -142,11 +135,11 @@ def ai_loop():
             if system_state["cost"] >= system_state["budget_limit"]:
                 max_containers = 5
                 system_state["budget_status"] = "EXCEEDED"
-                prefix = "💸 ECONOMY"
+                prefix = " ECONOMY"
             else:
                 max_containers = 10
                 system_state["budget_status"] = "OK"
-                prefix = "✅ NORMAL"
+                prefix = " NORMAL"
 
             # Scaling Logic
             cap = system_state["capacity_per_server"]
@@ -158,7 +151,7 @@ def ai_loop():
             scale_docker(final)
         
         else:
-            print(f"⏳ Warming up... {len(df)}/20") 
+            print(f" Warming up... {len(df)}/20") 
             
         time.sleep(5)
 
